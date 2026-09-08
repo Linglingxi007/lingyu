@@ -1,0 +1,2070 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>梦语 · 传讯</title>
+    <link rel="stylesheet" href="lingyu.css">
+</head>
+<body>
+<div class="phone-frame" id="app">
+
+    <!-- ===== 顶栏 ===== -->
+    <div class="top-bar">
+        <div class="angle-profile" id="profileClick">
+            <div class="angle-avatar" id="angleAvatarDisplay">🌙</div>
+            <div>
+                <span class="angle-name" id="angleNameDisplay">ta</span>
+                <span class="angle-status" id="angleStatusDisplay">· 在线</span>
+            </div>
+        </div>
+        <div class="dreamer-avatar-display" id="dreamerAvatarDisplay" title="我">🌸</div>
+        <div class="top-actions">
+            <button class="icon-btn" id="roleSwitchBtn" title="角色切换">👥</button>
+            <button class="icon-btn" id="openSidePanelBtn" title="功能面板">📚</button>
+            <button class="icon-btn" id="openSettingsBtn" title="设置">⚙</button>
+        </div>
+    </div>
+
+    <!-- ===== 聊天区域 ===== -->
+    <div class="chat-box" id="chatBox">
+        <div class="message system">
+            <span class="msg-avatar" id="systemAvatar">🌙</span>
+            <div class="msg-content">
+                ✦ 递出你的话语……<br>
+                <small>ta会从字卡中抽取回应</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- 正在输入指示器 -->
+    <div class="typing-indicator" id="typingIndicator">
+        <span class="typing-dots"><span></span><span></span><span></span></span>
+        <span id="typingText">ta 正在输入…</span>
+    </div>
+
+    <!-- 引用回复栏（输入框上方） -->
+    <div class="quote-bar" id="quoteBar">
+        <span class="q-from" id="quoteBarFrom">对方：</span>
+        <span class="q-text" id="quoteBarText"></span>
+        <span class="q-clear" id="quoteBarClear" title="取消引用">✕</span>
+    </div>
+
+    <!-- 消息拓展工具栏（长按 / 右键 气泡弹出悬浮窗） -->
+    <div class="msg-toolbar" id="msgToolbar">
+        <button data-action="recall" class="danger-warn" title="撤回消息">↶ 撤回</button>
+        <button data-action="delete" class="danger" title="删除消息">🗑 删除</button>
+        <button data-action="fav" title="收藏消息">⭐ 收藏</button>
+        <button data-action="mark"  title="给消息加标注">🏷 标注</button>
+        <button data-action="quote" title="引用回复">↩ 引用</button>
+    </div>
+
+    <!-- 标注颜色选择浮层 -->
+    <div class="mark-color-picker" id="markColorPicker"></div>
+    <!-- 标注备注输入浮层 -->
+    <div class="mark-note-input" id="markNoteInput">
+        <input type="text" id="markNoteText" placeholder="添加备注（可选）...">
+        <div class="row">
+            <button class="btn" id="markNoteCancel" type="button">取消</button>
+            <button class="btn btn-primary-mod" id="markNoteConfirm" type="button">确认</button>
+        </div>
+    </div>
+
+    <!-- 拍一拍快捷面板 -->
+    <div class="pat-quick-panel" id="patQuickPanel">
+        <div class="pat-quick-header">
+            <span>👋 快速拍一拍</span>
+            <button class="pat-quick-close" id="closePatQuickPanel">✕</button>
+        </div>
+        <div class="pat-quick-input-row">
+            <input type="text" id="quickPatInput" placeholder="输入拍一拍内容（如：拍了拍肩膀）" autocomplete="off">
+            <button class="btn btn-primary-mod" id="sendQuickPatBtn">发送</button>
+        </div>
+        <div class="pat-quick-save-row">
+            <label class="pat-quick-save-check">
+                <input type="checkbox" id="saveQuickPatCheck"> 保存到快捷回复
+            </label>
+            <label class="pat-quick-save-check">
+                <input type="checkbox" id="saveToPatLibraryCheck"> 保存到拍一拍库
+            </label>
+        </div>
+        <div class="pat-quick-section-title">快捷回复（点击直接发送）</div>
+        <div class="pat-quick-chips" id="quickPatChips">
+            <span class="pat-quick-empty">暂无快捷回复</span>
+        </div>
+        <button class="btn pat-quick-manage-btn" id="manageAllPatsBtn">📋 管理全部拍一拍</button>
+    </div>
+
+    <!-- 表情包快捷预览面板 -->
+    <div class="pat-quick-panel" id="emojiQuickPanel">
+        <div class="pat-quick-header">
+            <span>😊 表情包预览</span>
+            <button class="pat-quick-close" id="closeEmojiQuickPanel">✕</button>
+        </div>
+        <div class="pat-quick-section-title">点击表情直接发送</div>
+        <div class="emoji-quick-grid" id="emojiQuickGrid">
+            <span class="pat-quick-empty">暂无表情包，去添加吧~</span>
+        </div>
+        <button class="btn pat-quick-manage-btn" id="manageEmojiBtn">🖼 管理表情包库</button>
+    </div>
+
+    <!-- ===== 底部输入区 ===== -->
+    <div class="input-wrapper">
+        <button class="arrow-up-btn" id="arrowUpBtn" title="更多">↑</button>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="输入消息..." autocomplete="off">
+            <button class="btn-send" id="sendBtn">发送</button>
+        </div>
+    </div>
+</div>
+
+    <!-- ===== 底部上弹侧边栏 ===== -->
+<div class="bottom-sheet-overlay" id="bottomSheetOverlay"></div>
+<div class="bottom-sheet" id="bottomSheet">
+    <div class="bottom-sheet-grid">
+        <div class="sheet-item" id="bottomCallBtn">
+            <span class="icon">📹</span>
+            <span class="label">模拟通话</span>
+        </div>
+        <div class="sheet-item" id="bottomEmojiBtn">
+            <span class="icon">😊</span>
+            <span class="label">表情包</span>
+        </div>
+        <div class="sheet-item" id="bottomPatBtn">
+            <span class="icon">👋</span>
+            <span class="label">拍一拍</span>
+        </div>
+        <div class="sheet-item" id="bottomFavBtn">
+            <span class="icon">⭐</span>
+            <span class="label">收藏匣</span>
+        </div>
+        <div class="sheet-item" id="bottomMarkBtn">
+            <span class="icon">🏷</span>
+            <span class="label">标注</span>
+        </div>
+        <div class="sheet-item" id="bottomRpsBtn">
+            <span class="icon">✊</span>
+            <span class="label">猜拳</span>
+        </div>
+        <div class="sheet-item" id="bottomDoodleBtn">
+            <span class="icon">🎨</span>
+            <span class="label">涂鸦</span>
+        </div>
+        <div class="sheet-item" id="bottomDGBtn">
+            <span class="icon">🖌️</span>
+            <span class="label">你画我猜</span>
+        </div>
+        <div class="sheet-item" id="bottomRPBtn">
+            <span class="icon">🧧</span>
+            <span class="label">红包</span>
+        </div>
+        <div class="sheet-item" id="bottomSettingsBtn">
+            <span class="icon">⚙</span>
+            <span class="label">设置</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 右侧侧边栏 ===== -->
+<div class="side-overlay" id="sideOverlay"></div>
+<div class="side-panel" id="sidePanel">
+    <div class="side-header">
+        <h2>✦ 功能面板</h2>
+        <button class="side-close" id="sideCloseBtn">✕</button>
+    </div>
+    <div class="side-grid">
+        <div class="side-grid-item" id="sideCardBtn">
+            <span class="icon">📜</span>
+            <span class="label">字卡</span>
+        </div>
+        <div class="side-grid-item" id="sideEmojiBtn">
+            <span class="icon">😊</span>
+            <span class="label">表情包</span>
+        </div>
+        <div class="side-grid-item" id="sidePatBtn">
+            <span class="icon">👋</span>
+            <span class="label">拍一拍</span>
+        </div>
+        <div class="side-grid-item" id="sideFavBtn">
+            <span class="icon">⭐</span>
+            <span class="label">收藏匣</span>
+        </div>
+        <div class="side-grid-item" id="sideMarkBtn">
+            <span class="icon">🏷</span>
+            <span class="label">标注</span>
+        </div>
+        <div class="side-grid-item" id="sideCalendarBtn">
+            <span class="icon">🗓</span>
+            <span class="label">日历</span>
+        </div>
+        <div class="side-grid-item" id="sideDiaryBtn">
+            <span class="icon">📖</span>
+            <span class="label">心情日记</span>
+        </div>
+        <div class="side-grid-item" id="sideEnvelopeBtn">
+            <span class="icon">✉</span>
+            <span class="label">信封</span>
+        </div>
+        <div class="side-grid-item" id="sideBoardBtn">
+            <span class="icon">📋</span>
+            <span class="label">留言板</span>
+        </div>
+        <div class="side-grid-item" id="sideWishBtn">
+            <span class="icon">🌳</span>
+            <span class="label">许愿树</span>
+        </div>
+        <div class="side-group-title side-group-games"><span>🎮 小游戏</span></div>
+        <div class="side-grid-item" id="sideRpsBtn">
+            <span class="icon">✊</span>
+            <span class="label">猜拳奖惩</span>
+        </div>
+        <div class="side-grid-item" id="sideDoodleBtn">
+            <span class="icon">🎨</span>
+            <span class="label">涂鸦板</span>
+        </div>
+        <div class="side-grid-item" id="sideDrawGuessBtn">
+            <span class="icon">🖌️</span>
+            <span class="label">你画我猜</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 设置主弹窗（三大板块） ===== -->
+<div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>⚙ 设置</h2>
+            <button class="modal-close" id="closeSettingsBtn">✕</button>
+        </div>
+        <div class="modal-body" id="settingsBody">
+            <!-- 主视图：三大板块 -->
+            <div class="settings-sections" id="settingsMainView">
+                <div class="settings-section-card" id="openAppearanceBtn">
+                    <span class="icon">🎨</span>
+                    <div>
+                        <div class="title">外观设置</div>
+                        <div class="desc">昵称 · 头像 · 气泡 · 背景&字体 · 主题外观</div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+                <div class="settings-section-card" id="openChatSettingsBtn">
+                    <span class="icon">💬</span>
+                    <div>
+                        <div class="title">聊天设置</div>
+                        <div class="desc">回应速度 · 抽取方式 · 显示选项</div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+                <div class="settings-section-card" id="openDataMgmtBtn">
+                    <span class="icon">💾</span>
+                    <div>
+                        <div class="title">数据管理</div>
+                        <div class="desc">导出 · 导入 · 清空所有数据</div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+            </div>
+
+            <!-- 外观设置视图：五个子板块 -->
+            <div class="settings-sub-view" id="appearanceView" style="display:none;">
+                <div class="settings-back" id="backFromAppearance">← 返回</div>
+                <div class="appearance-grid">
+                    <div class="appearance-btn" id="openNicknameBtn">
+                        <span class="icon">✏️</span>
+                        <span class="label">昵称设置</span>
+                    </div>
+                    <div class="appearance-btn" id="openAvatarBtn">
+                        <span class="icon">🖼️</span>
+                        <span class="label">头像设置</span>
+                    </div>
+                    <div class="appearance-btn" id="openBubbleBtn">
+                        <span class="icon">💭</span>
+                        <span class="label">气泡</span>
+                    </div>
+                    <div class="appearance-btn" id="openBgFontBtn">
+                        <span class="icon">🔤</span>
+                        <span class="label">背景&字体</span>
+                    </div>
+                    <div class="appearance-btn" id="openThemeBtn">
+                        <span class="icon">🎨</span>
+                        <span class="label">主题外观</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 聊天设置视图 -->
+            <div class="settings-sub-view" id="chatSettingsView" style="display:none;">
+                <div class="settings-back" id="backFromChat">← 返回</div>
+                <!-- 标签页 -->
+                <div class="chat-settings-tabs" id="chatSettingsTabs">
+                    <span class="chat-tab active" data-tab="func">☰ 功能</span>
+                    <span class="chat-tab" data-tab="rhythm">☲ 节奏</span>
+                    <span class="chat-tab" data-tab="sound">♪ 音效</span>
+                    <span class="chat-tab" data-tab="display">◉ 显示</span>
+                    <span class="chat-tab" data-tab="letter">✉ 信封</span>
+                </div>
+
+                <!-- 功能 tab -->
+                <div class="chat-tab-panel" data-tab="func" style="display:flex;">
+                    <div class="chat-section-title">消息交互</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">↩</span>
+                        <div class="switch-info">
+                            <div class="switch-label">引用回复</div>
+                            <div class="switch-desc">长按消息可引用回复</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatQuoteEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✓✓</span>
+                        <div class="switch-info">
+                            <div class="switch-label">已读回执</div>
+                            <div class="switch-desc">ta 是否看到了消息</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatReadReceipt" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row inner-row">
+                        <span></span><span class="switch-label" style="font-size:0.7rem;color:var(--text-muted);">样式</span>
+                        <div class="chat-style-picker" id="chatReceiptStyle">
+                            <span class="style-option active" data-val="graphic">✓ 图形</span>
+                            <span class="style-option" data-val="text">文字</span>
+                        </div>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✗✓</span>
+                        <div class="switch-info">
+                            <div class="switch-label">已读不回</div>
+                            <div class="switch-desc">已读后不强制回复</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatReadNoReply" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">⌨</span>
+                        <div class="switch-info">
+                            <div class="switch-label">正在输入</div>
+                            <div class="switch-desc">ta 打字时显示状态</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatTypingEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">↵</span>
+                        <div class="switch-info">
+                            <div class="switch-label">回车键发送</div>
+                            <div class="switch-desc">Enter 直接发送，Shift+Enter 换行</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatEnterSend"><span></span></label>
+                    </div>
+
+                    <div class="chat-section-title">时间戳</div>
+                    <div class="chat-timestamp-options" id="chatTimestampOptions">
+                        <div class="ts-option active" data-val="HH:MM">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">14:05</span>
+                        </div>
+                        <div class="ts-option" data-val="HH:MM:SS">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">14:05:30</span>
+                        </div>
+                        <div class="ts-option" data-val="H:MM PM">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">2:05 PM</span>
+                        </div>
+                        <div class="ts-option" data-val="H:MM:SS PM">
+                            <span class="ts-icon">⏱</span>
+                            <span class="ts-label">2:05:30 PM</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 节奏 tab -->
+                <div class="chat-tab-panel" data-tab="rhythm">
+                    <div class="chat-section-title">回复速度</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最短等待</div>
+                        <input type="range" id="chatMinWaitSlider" min="1000" max="30000" step="1000" value="3000">
+                        <span class="slider-value" id="chatMinWaitVal">3s</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最长等待</div>
+                        <input type="range" id="chatMaxWaitSlider" min="1000" max="120000" step="1000" value="7000">
+                        <span class="slider-value" id="chatMaxWaitVal">7s</span>
+                    </div>
+
+                    <div class="chat-section-title">主动发送</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✈</span>
+                        <div class="switch-info">
+                            <div class="switch-label">主动发消息给我</div>
+                            <div class="switch-desc">ta 会在空闲时主动问候</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatActiveMsg" checked><span></span></label>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">间隔</div>
+                        <input type="range" id="chatActiveIntervalSlider" min="1" max="120" step="1" value="5">
+                        <span class="slider-value" id="chatActiveIntervalVal">5分钟</span>
+                    </div>
+
+                    <div class="chat-section-title">👋 拍一拍</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">👋</span>
+                        <div class="switch-info">
+                            <div class="switch-label">双击头像拍一拍</div>
+                            <div class="switch-desc">双击梦角头像触发拍一拍，可连续触发</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="patDblClickEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">我拍间隔</div>
+                        <input type="range" id="patUserIntervalSlider" min="200" max="5000" step="100" value="500">
+                        <span class="slider-value" id="patUserIntervalVal">0.5s</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">ta 拍间隔</div>
+                        <input type="range" id="patAngleIntervalSlider" min="1000" max="30000" step="500" value="5000">
+                        <span class="slider-value" id="patAngleIntervalVal">5s</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">ta 回拍概率</div>
+                        <input type="range" id="patAngleReplyChanceSlider" min="0" max="100" step="5" value="30">
+                        <span class="slider-value" id="patAngleReplyChanceVal">30%</span>
+                    </div>
+
+                    <div class="chat-section-title">拼字卡</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✦</span>
+                        <div class="switch-info">
+                            <div class="switch-label">拼字卡</div>
+                            <div class="switch-desc">开启后，梦角会随机把多条字卡拼成一句话发出</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatMergeCards"><span></span></label>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">拼卡条数</div>
+                        <input type="range" id="chatMergeCountSlider" min="2" max="10" step="1" value="3">
+                        <span class="slider-value" id="chatMergeCountVal">3 条</span>
+                        <div class="slider-note">梦角从字卡库选择，最少 2 条最多 10 条</div>
+                    </div>
+
+                    <div class="chat-section-title">字卡抽取方式</div>
+                    <select id="chatPickModeSelect">
+                        <option value="random" selected>随机抽取</option>
+                        <option value="sequence">顺序抽取</option>
+                        <option value="norepeat">不重复抽取</option>
+                    </select>
+                </div>
+
+                <!-- 音效 tab -->
+                <div class="chat-tab-panel" data-tab="sound">
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">♪</span>
+                        <div class="switch-info">
+                            <div class="switch-label">消息提示音</div>
+                            <div class="switch-desc">收到新消息时播放提示音</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatSoundMsg"><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">📞</span>
+                        <div class="switch-info">
+                            <div class="switch-label">通话提示音</div>
+                            <div class="switch-desc">发起或接通模拟通话时播放</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatSoundCall"><span></span></label>
+                    </div>
+                    <div class="chat-section-title">音量</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">音量</div>
+                        <input type="range" id="chatVolumeSlider" min="0" max="100" value="70">
+                        <span class="slider-value" id="chatVolumeVal">70%</span>
+                    </div>
+                </div>
+
+                <!-- 显示 tab -->
+                <div class="chat-tab-panel" data-tab="display">
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">👤</span>
+                        <div class="switch-info">
+                            <div class="switch-label">显示头像</div>
+                            <div class="switch-desc">在每条消息前显示头像</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatShowAvatar" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">⌚</span>
+                        <div class="switch-info">
+                            <div class="switch-label">显示时间戳</div>
+                            <div class="switch-desc">在每条消息下方显示发送时间</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatShowTimestamp" checked><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✎</span>
+                        <div class="switch-info">
+                            <div class="switch-label">显示昵称</div>
+                            <div class="switch-desc">消息时间戳中显示昵称</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatShowNickname" checked><span></span></label>
+                    </div>
+                </div>
+
+                <!-- 信封投递 tab -->
+                <div class="chat-tab-panel" data-tab="letter">
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">✉</span>
+                        <div class="switch-info">
+                            <div class="switch-label">主动给我写信</div>
+                            <div class="switch-desc">开启后，梦角会随机主动写信</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatLetterEnabled" checked><span></span></label>
+                    </div>
+                    <div class="chat-section-title">时空来信间隔</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最少</div>
+                        <input type="range" id="chatLetterMinSlider" min="1" max="180" step="1" value="15">
+                        <span class="slider-value" id="chatLetterMinVal">15分钟</span>
+                        <select id="chatLetterMinUnit">
+                            <option value="minute" selected>分钟</option>
+                            <option value="hour">小时</option>
+                            <option value="day">天</option>
+                        </select>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最多</div>
+                        <input type="range" id="chatLetterMaxSlider" min="2" max="480" step="1" value="60">
+                        <span class="slider-value" id="chatLetterMaxVal">60分钟</span>
+                        <select id="chatLetterMaxUnit">
+                            <option value="minute" selected>分钟</option>
+                            <option value="hour">小时</option>
+                            <option value="day">天</option>
+                        </select>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">⟲</span>
+                        <div class="switch-info">
+                            <div class="switch-label">采用自定义的回信规律</div>
+                            <div class="switch-desc">按下方配置的回信间隔与句数</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatCustomReplyRule"><span></span></label>
+                    </div>
+                    <div class="chat-section-title">回信间隔</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最少</div>
+                        <input type="range" id="chatReplyMinSlider" min="1" max="30" step="1" value="10">
+                        <span class="slider-value" id="chatReplyMinVal">10分钟</span>
+                        <select id="chatReplyMinUnit">
+                            <option value="min" selected>分钟</option>
+                            <option value="hour">小时</option>
+                        </select>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最多</div>
+                        <input type="range" id="chatReplyMaxSlider" min="1" max="12" step="1" value="2">
+                        <span class="slider-value" id="chatReplyMaxVal">2小时</span>
+                        <select id="chatReplyMaxUnit">
+                            <option value="min">分钟</option>
+                            <option value="hour" selected>小时</option>
+                        </select>
+                    </div>
+                    <div class="chat-section-title">回信句数</div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最少</div>
+                        <input type="range" id="chatReplyMinSent" min="1" max="20" step="1" value="5">
+                        <span class="slider-value" id="chatReplyMinSentVal">5句</span>
+                    </div>
+                    <div class="chat-slider-row">
+                        <div class="slider-label">最多</div>
+                        <input type="range" id="chatReplyMaxSent" min="5" max="30" step="1" value="20">
+                        <span class="slider-value" id="chatReplyMaxSentVal">20句</span>
+                    </div>
+                    <div class="chat-section-title">消息节奏</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">😊</span>
+                        <div class="switch-info">
+                            <div class="switch-label">emoji表情混入消息</div>
+                            <div class="switch-desc">开启后，随机 emoji 会混入字卡前后或中间</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatEmojiMix"><span></span></label>
+                    </div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">乀(ˉεˉ乀)</span>
+                        <div class="switch-info">
+                            <div class="switch-label">颜文字混入消息</div>
+                            <div class="switch-desc">开启后颜文字与文字同条发送</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatKaomojiMix"><span></span></label>
+                    </div>
+                    <div class="chat-section-title">通话功能</div>
+                    <div class="chat-switch-row">
+                        <span class="switch-icon">📹</span>
+                        <div class="switch-info">
+                            <div class="switch-label">模拟视频通话</div>
+                            <div class="switch-desc">关闭后隐藏主界面通话按键</div>
+                        </div>
+                        <label class="chat-switch"><input type="checkbox" id="chatCallEnabled" checked><span></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据管理视图 -->
+            <div class="settings-sub-view" id="dataMgmtView" style="display:none;">
+                <div class="settings-back" id="backFromData">← 返回</div>
+                <div class="settings-item">
+                    <div class="label">导出全部数据</div>
+                    <div class="desc">导出字卡 / 表情包 / 拍一拍 / 聊天记录 / 个人资料 / 收藏 / 标注 / 日记 / 信封 / 留言板 / 许愿树 / 小游戏等所有板块数据为 JSON</div>
+                    <div class="data-actions" style="margin-top:6px;">
+                        <button class="btn btn-export" id="dataExportBtn">⬇ 导出全部数据</button>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="label">导入数据</div>
+                    <div class="desc">从手机/存储选择 JSON 文件，覆盖当前所有数据</div>
+                    <input type="file" id="dataImportFile" accept=".json,application/json" style="display:none;">
+                    <div class="data-actions" style="margin-top:6px;">
+                        <button class="btn btn-import" id="dataImportFileBtn">📂 选择 JSON 文件导入</button>
+                    </div>
+                </div>
+                <div class="settings-item">
+                    <div class="label">聊天记录导入</div>
+                    <div class="desc">选择 JSON 文件，追加聊天记录到当前对话</div>
+                    <input type="file" id="chatImportFile" accept=".json,application/json" style="display:none;">
+                    <div class="data-actions" style="margin-top:6px;">
+                        <button class="btn btn-import" id="chatImportBtn">📂 选择 JSON 文件导入</button>
+                        <button class="btn btn-danger" id="chatClearBtn">🗑 清空当前对话</button>
+                    </div>
+                    <div class="mod-hint" style="margin-top:4px;">💡 格式：[{"type":"user","text":"你好","time":"2024-01-01 12:00"}] 或 {"messages":[...]}</div>
+                </div>
+                <div class="settings-item">
+                    <div class="label">清空所有数据</div>
+                    <div class="desc">清空本地存储的全部数据并恢复默认（不可恢复）</div>
+                    <div class="data-actions" style="margin-top:6px;">
+                        <button class="btn btn-danger" id="dataClearBtn">🗑 清空所有数据</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 收藏匣弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="favModal">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <h2>⭐ 收藏匣</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-danger" id="favClearAllBtn" style="font-size:0.78rem;padding:4px 10px;">清空全部</button>
+                <button class="modal-close" id="closeFavModal">✕</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="lib-tabs">
+                <button class="tab-btn active" data-favtab="usr">🌸 我的收藏</button>
+                <button class="tab-btn" data-favtab="angle">🌙 ta 的收藏</button>
+            </div>
+            <input type="text" class="lib-search" id="favSearchInput" placeholder="🔍 搜索收藏内容...">
+            <div class="lib-list" id="favList"><div class="lib-empty">暂无收藏</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 标注弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="markModal">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <h2>🏷 标注</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-danger" id="markClearAllBtn" style="font-size:0.78rem;padding:4px 10px;">清空全部</button>
+                <button class="modal-close" id="closeMarkModal">✕</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="lib-tabs">
+                <button class="tab-btn active" data-marktab="usr">🌸 我的标注</button>
+                <button class="tab-btn" data-marktab="angle">🌙 ta 的标注</button>
+            </div>
+            <input type="text" class="lib-search" id="markSearchInput" placeholder="🔍 搜索标注内容/备注...">
+            <div class="lib-list" id="markList"><div class="lib-empty">暂无标注</div></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 日历弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="calendarModal">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <h2>🗓 日历</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-primary-mod" id="calToDiaryBtn" style="font-size:0.78rem;padding:4px 10px;">📖 打开日记</button>
+                <button class="modal-close" id="closeCalendarModal">✕</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="cal-header">
+                <div class="cal-nav">
+                    <button id="calPrevYear" title="上一年">«</button>
+                    <button id="calPrevMonth" title="上一月">‹</button>
+                </div>
+                <div class="cal-title" id="calTitle">2026年9月</div>
+                <div class="cal-nav">
+                    <button id="calJumpBtn" class="cal-jump-btn" title="跳转到日期">🕹</button>
+                    <button id="calNextMonth" title="下一月">›</button>
+                    <button id="calNextYear" title="下一年">»</button>
+                </div>
+            </div>
+            <div class="cal-weekdays">
+                <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 跳转日期选择器（子弹窗） ===== -->
+<div class="modal-overlay sub-modal" id="jumpDateModal">
+    <div class="modal-content" style="max-width:420px;">
+        <div class="modal-header">
+            <h2>🕹 跳转到日期</h2>
+            <button class="modal-close" id="closeJumpDateModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="jump-dl-wrap">
+                <div class="jump-dl-col">
+                    <div class="dl-label">年</div>
+                    <div class="dl-viewport" id="dlYearViewport"></div>
+                </div>
+                <div class="jump-dl-col">
+                    <div class="dl-label">月</div>
+                    <div class="dl-viewport" id="dlMonthViewport"></div>
+                </div>
+                <div class="jump-dl-col">
+                    <div class="dl-label">日</div>
+                    <div class="dl-viewport" id="dlDayViewport"></div>
+                </div>
+            </div>
+            <div class="dl-selection-row">
+                <button class="btn-cancel" id="dlCancelBtn">取消</button>
+                <button class="btn-confirm" id="dlConfirmBtn">跳转</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 心情日记弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="diaryModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📖 心情日记</h2>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button class="btn btn-primary-mod" id="diaryToCalBtn" style="font-size:0.78rem;padding:4px 10px;">🗓 打开日历</button>
+                <button class="modal-close" id="closeDiaryModal">✕</button>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="diary-header">
+                <div class="d-nav-btns">
+                    <button id="diaryPrevDay" title="前一天">‹</button>
+                </div>
+                <div class="d-date" id="diaryDateLabel">2026年9月3日</div>
+                <div class="d-nav-btns">
+                    <button id="diaryTodayBtn" title="回到今天">今</button>
+                    <button id="diaryNextDay" title="后一天">›</button>
+                </div>
+            </div>
+
+            <!-- 日记输入区 -->
+            <div class="diary-input-area">
+                <div class="diary-author-tabs">
+                    <button data-author="usr" class="active">🌸 梦女</button>
+                    <button data-author="angle">🌙 梦角</button>
+                </div>
+
+                <!-- 梦角写日记时需要选心情 -->
+                <div class="diary-mood-row" id="diaryMoodRow" style="display:none;">
+                    <span class="mood-label">梦角心情：</span>
+                    <div id="diaryMoodList" style="display:flex;gap:4px;flex-wrap:wrap;"></div>
+                </div>
+
+                <!-- 快速插入：字卡/表情 -->
+                <div class="diary-quick-row" id="diaryQuickRow"></div>
+
+                <textarea class="diary-input" id="diaryInput" placeholder="今天发生了什么？（Ctrl+Enter 保存）"></textarea>
+                <div class="diary-send-row">
+                    <div class="quick-pick-wrap">
+                        <button class="btn-insert" id="diaryInsertBtn">✨ 插入字卡/表情</button>
+                        <div class="quick-pick-panel" id="diaryPickPanel"></div>
+                    </div>
+                    <button class="btn-save" id="diarySaveBtn">保存</button>
+                </div>
+            </div>
+
+            <!-- 日记列表（按时间顺序） -->
+            <div class="diary-list" id="diaryList">
+                <div class="lib-empty">当天没有心情日记，写一条吧~</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 信封板块 ===== -->
+<div class="modal-overlay sub-modal" id="envelopeModal">
+    <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+            <h2>✉ 信封</h2>
+            <button class="modal-close" id="closeEnvelopeModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 信封三大大板块 tabs -->
+            <div class="lib-tabs" style="margin-bottom:12px;">
+                <button class="tab-btn active" data-env-box="mine">🌸 我的信箱</button>
+                <button class="tab-btn" data-env-box="angle">🌙 他的信箱</button>
+                <button class="tab-btn" data-env-box="space">🌌 时空信箱</button>
+            </div>
+
+            <!-- 大板块内：收件箱 / 回信箱 子 tab（时空信箱只有收信箱） -->
+            <div id="envInnerTabs" class="lib-tabs" style="margin-bottom:10px;">
+                <button class="tab-btn active" data-env-inner="inbox">📥 收信箱 <span class="env-count" id="envInboxCount" style="background:#ff8ab3;color:#fff;padding:1px 6px;border-radius:10px;font-size:0.6rem;">0</span></button>
+                <button class="tab-btn" data-env-inner="outbox">📤 回信箱 <span class="env-count" id="envOutboxCount" style="background:rgba(200,170,220,0.3);padding:1px 6px;border-radius:10px;font-size:0.6rem;">0</span></button>
+            </div>
+
+            <!-- 信件列表 -->
+            <div class="env-list" id="envList">
+                <div class="lib-empty">还没有信件哦~</div>
+            </div>
+
+            <!-- 回信输入区（仅收信箱显示，写回信） -->
+            <div id="envReplyArea" style="margin-top:14px;display:none;">
+                <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;" id="envReplyHint">给 ta 写回信：</div>
+                <textarea class="mod-textarea" id="envReplyInput" rows="4" placeholder="写一封温柔的回信...（Ctrl+Enter 发送）"></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <button class="btn btn-primary-mod" id="envReplySendBtn">📤 发送回信</button>
+                    <button class="btn" id="envReplyCancelBtn">取消</button>
+                </div>
+            </div>
+
+            <!-- 写信按钮（仅回信箱显示，直接新建一封信给对方） -->
+            <div id="envNewLetterArea" style="margin-top:14px;display:none;">
+                <button class="btn btn-primary-mod" id="envNewBtn">✍ 新建一封信</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新建/写信子弹窗 -->
+<div class="modal-overlay sub-modal" id="envLetterModal">
+    <div class="modal-content env-letter-full" style="max-width:720px;">
+        <div class="modal-header">
+            <h2 id="envLetterTitle">✍ 写一封信</h2>
+            <button class="modal-close" id="closeLetterModal">✕</button>
+        </div>
+        <div class="modal-body env-letter-body">
+            <!-- 回信场景时显示：梦角寄来的原信折叠窗（默认折叠，点标题展开） -->
+            <details id="envReplyFold" class="env-reply-fold" style="display:none;">
+                <summary class="env-reply-summary">📜 梦角寄来的原信（点击展开对照）</summary>
+                <div class="env-reply-quote">
+                    <div class="env-rq-head">
+                        <span class="env-rq-sender">来自 <b id="envRqSender">ta</b></span>
+                        <span class="env-rq-time" id="envRqTime"></span>
+                    </div>
+                    <div class="env-rq-title" id="envRqTitle"></div>
+                    <div class="env-rq-content" id="envRqContent"></div>
+                </div>
+            </details>
+
+            <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">标题</div>
+            <input type="text" id="envLetterTitleInput" class="lib-search" placeholder="给这封信起个标题（可选）" style="margin-bottom:12px;">
+            <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">内容</div>
+            <textarea class="mod-textarea env-letter-textarea" id="envLetterContentInput" rows="14" placeholder="写下你的心里话..."></textarea>
+            <div class="mod-row" style="margin-top:10px;justify-content:flex-end;">
+                <button class="btn" id="envLetterCancelBtn">取消</button>
+                <button class="btn btn-primary-mod" id="envLetterSendBtn">📤 发送</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 留言板弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="boardModal">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <h2>📋 留言板</h2>
+            <button class="modal-close" id="closeBoardModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mod-row" style="justify-content:space-between;margin-bottom:10px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);">每天上限 5 条小纸条 · 梦角留言给梦女</div>
+                <div class="mod-row" style="gap:6px;">
+                    <button class="btn" id="boardRefreshBtn">✨ 抽取留言</button>
+                    <button class="btn" id="boardPhraseBtn">📝 话语</button>
+                    <button class="btn" id="boardHistBtn">📜 历史</button>
+                </div>
+            </div>
+            <div class="board-grid" id="boardGrid"></div>
+            <div id="boardEmpty" class="lib-empty" style="display:none;">今天还没有留言哦~ 点"抽取留言"让 ta 留下小纸条吧</div>
+        </div>
+    </div>
+</div>
+
+<!-- 留言板 · 话语管理子弹窗 -->
+<div class="modal-overlay sub-modal" id="boardPhraseModal">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h2>📝 梦角话语库</h2>
+            <button class="modal-close" id="closeBoardPhraseModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:6px;">梦角留言会从这里随机抽取（同时也会混入字卡/表情/颜文字/emoji）</div>
+            <div class="phrase-list" id="boardPhraseList"></div>
+            <textarea class="mod-textarea" id="boardPhraseInput" rows="2" placeholder="添加一句梦角会对梦女说的话，如：今天有没有好好吃饭？"></textarea>
+            <div class="mod-row" style="margin-top:6px;justify-content:flex-end;">
+                <button class="btn btn-primary-mod" id="boardPhraseAddBtn">➕ 添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 留言板 · 历史子弹窗 -->
+<div class="modal-overlay sub-modal" id="boardHistModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📜 留言历史</h2>
+            <button class="modal-close" id="closeBoardHistModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="boardHistList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 许愿树弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="wishModal">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="modal-header">
+            <h2>🌳 许愿树</h2>
+            <button class="modal-close" id="closeWishModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="star-legend">
+                <span><i style="background:#f5c542;"></i>黄·日常</span>
+                <span><i style="background:#ff8ab3;"></i>粉·亲密</span>
+                <span><i style="background:#5aa9ff;"></i>蓝·求安慰</span>
+                <span><i style="background:#e74c3c;"></i>红·生气</span>
+                <span><i style="background:#5ec97a;"></i>绿·恐惧</span>
+                <span><i style="background:#a87ff0;"></i>紫·担忧</span>
+            </div>
+            <div class="mod-row" style="justify-content:space-between;margin-bottom:10px;">
+                <div style="font-size:0.7rem;color:var(--text-muted);">每天上限 5 颗小星星</div>
+                <div class="mod-row" style="gap:6px;">
+                    <button class="btn" id="wishRefreshBtn">✨ 摘取星星</button>
+                    <button class="btn" id="wishPhraseBtn">📝 愿望</button>
+                    <button class="btn" id="wishHistBtn">📜 历史</button>
+                </div>
+            </div>
+            <div class="wish-tree">
+                <div class="wt-trunk">🌳</div>
+                <div class="star-grid" id="wishGrid"></div>
+            </div>
+            <div id="wishEmpty" class="lib-empty" style="display:none;">树上还没有星星~ 点"摘取星星"看看 ta 今天的愿望</div>
+        </div>
+    </div>
+</div>
+
+<!-- 许愿树 · 愿望管理子弹窗 -->
+<div class="modal-overlay sub-modal" id="wishPhraseModal">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="modal-header">
+            <h2>📝 愿望话语库</h2>
+            <button class="modal-close" id="closeWishPhraseModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="lib-tabs" style="margin-bottom:8px;" id="wishColorTabs">
+                <button class="tab-btn active" data-wish-color="yellow">🟡 日常</button>
+                <button class="tab-btn" data-wish-color="pink">💗 亲密</button>
+                <button class="tab-btn" data-wish-color="blue">🔵 求安慰</button>
+                <button class="tab-btn" data-wish-color="red">🔴 生气</button>
+                <button class="tab-btn" data-wish-color="green">🟢 恐惧</button>
+                <button class="tab-btn" data-wish-color="purple">🟣 担忧</button>
+            </div>
+            <div class="phrase-list" id="wishPhraseList"></div>
+            <textarea class="mod-textarea" id="wishPhraseInput" rows="2" placeholder="添加一条对应颜色的愿望话语"></textarea>
+            <div class="mod-row" style="margin-top:6px;justify-content:flex-end;">
+                <button class="btn btn-primary-mod" id="wishPhraseAddBtn">➕ 添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 许愿树 · 历史子弹窗 -->
+<div class="modal-overlay sub-modal" id="wishHistModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>📜 许愿历史</h2>
+            <button class="modal-close" id="closeWishHistModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="wishHistList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 昵称设置弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="nicknameModal">
+    <div class="modal-content" style="max-width:460px;">
+        <div class="modal-header">
+            <h2>✏️ 昵称设置</h2>
+            <button class="modal-close" id="closeNicknameModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 基础昵称 -->
+            <div class="settings-section-title" style="font-size:0.75rem; color:#5a3d6b; font-weight:500; margin-bottom:6px;">基础昵称</div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:120px;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦女（我）</div>
+                    <input type="text" id="userNameInput" value="我" style="width:100%; padding:8px 14px; border-radius:20px; border:1px solid rgba(200,170,220,0.15); font-size:0.85rem; outline:none;">
+                </div>
+                <div style="flex:1; min-width:120px;">
+                    <div style="font-size:0.7rem; color:#7a5b8c; opacity:0.5; margin-bottom:4px;">梦角（ta）</div>
+                    <input type="text" id="angleNameInput" value="ta" style="width:100%; padding:8px 14px; border-radius:20px; border:1px solid rgba(200,170,220,0.15); font-size:0.85rem; outline:none;">
+                </div>
+            </div>
+
+            <!-- 互相称呼 -->
+            <div class="settings-section-title" style="font-size:0.8rem; color:#5a3d6b; font-weight:600; margin:14px 0 8px; display:flex; align-items:center; gap:6px;">
+                💌 互相称呼
+                <span style="font-size:0.6rem; color:#999; font-weight:400;">（可自行添加，保存后生效）</span>
+            </div>
+
+            <!-- 梦女称呼梦角（默认展开） -->
+            <div class="call-block call-block-user">
+                <div class="call-block-header" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(135deg, var(--accent-soft), #fff); border-radius:14px 14px 4px 4px; cursor:pointer;" id="callUserToggle">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.1rem;">🌸</span>
+                        <span style="font-weight:600; font-size:0.8rem; color:#5a3d6b;">梦女称呼梦角</span>
+                        <span style="font-size:0.65rem; color:#999;">（用于我发送时的称呼自定义）</span>
+                    </div>
+                    <span class="call-arrow" style="font-size:0.85rem; color:#999; transition:transform 0.3s; transform:rotate(90deg);">▸</span>
+                </div>
+                <div class="call-block-body" id="callUserBody" style="padding:12px 14px; border:1px solid rgba(200,170,220,0.1); border-top:none; border-radius:0 0 14px 14px; background:rgba(255,255,255,0.6);">
+                    <div id="userCallsAngleList" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;"></div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <input type="text" id="newUserCallAngle" placeholder="例：宝贝、亲爱的、老公老婆" style="flex:1; padding:7px 14px; border-radius:18px; border:1px solid rgba(200,170,220,0.2); font-size:0.78rem; outline:none; background:#fff;">
+                        <button class="btn btn-primary-mod" id="addUserCallAngleBtn" style="padding:7px 12px; font-size:0.72rem;">+ 添加</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height:10px;"></div>
+
+            <!-- 梦角称呼梦女（默认折叠） -->
+            <div class="call-block call-block-angle">
+                <div class="call-block-header" style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(135deg, #e3f2fd, #fff); border-radius:14px 14px 4px 4px; cursor:pointer;" id="callAngleToggle">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.1rem;">🌙</span>
+                        <span style="font-weight:600; font-size:0.8rem; color:#2c5a8a;">梦角称呼梦女</span>
+                        <span style="font-size:0.65rem; color:#999;">（用于ta回复开头，默认概率 30%）</span>
+                    </div>
+                    <span class="call-arrow" id="callAngleArrow" style="font-size:0.85rem; color:#999; transition:transform 0.3s;">▸</span>
+                </div>
+                <div class="call-block-body" id="callAngleBody" style="display:none; padding:12px 14px; border:1px solid rgba(200,170,220,0.1); border-top:none; border-radius:0 0 14px 14px; background:rgba(255,255,255,0.6);">
+                    <!-- 回复开头概率滑条 -->
+                    <div style="margin-bottom:12px; padding:10px; border-radius:12px; background:rgba(227,242,253,0.5);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span style="font-size:0.7rem; color:#2c5a8a;">回复开头混入称呼</span>
+                            <span style="font-size:0.72rem; color:#5a3d6b; font-weight:600;" id="angleCallChanceVal">30%</span>
+                        </div>
+                        <input type="range" id="angleCallChanceSlider" min="0" max="100" step="5" value="30" style="width:100%;">
+                    </div>
+                    <div id="angleCallsUserList" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;"></div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <input type="text" id="newAngleCallUser" placeholder="例：小猫、丫头、宝宝" style="flex:1; padding:7px 14px; border-radius:18px; border:1px solid rgba(200,170,220,0.2); font-size:0.78rem; outline:none; background:#fff;">
+                        <button class="btn btn-primary-mod" id="addAngleCallUserBtn" style="padding:7px 12px; font-size:0.72rem;">+ 添加</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary-mod" id="saveNicknameBtn" style="padding:10px 24px; margin-top:16px; width:100%; font-size:0.8rem;">💾 保存设置</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 头像设置弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="avatarModal">
+    <div class="modal-content" style="max-width:460px;">
+        <div class="modal-header">
+            <h2>🖼️ 头像设置</h2>
+            <button class="modal-close" id="closeAvatarModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="avatar-preview-area">
+                <div class="avatar-preview-box">
+                    <span class="label">实时预览</span>
+                    <div class="avatar-preview shape-circle" id="previewUserAvatar">
+                        <span id="previewUserEmoji">🌸</span>
+                    </div>
+                    <span style="font-size:0.6rem; color:#7a5b8c;" id="previewUserName">我</span>
+                </div>
+                <div style="color:#b697cc; font-size:1.2rem;">⟷</div>
+                <div class="avatar-preview-box">
+                    <span class="label">实时预览</span>
+                    <div class="avatar-preview shape-circle" id="previewAngleAvatar">
+                        <span id="previewAngleEmoji">🌙</span>
+                    </div>
+                    <span style="font-size:0.6rem; color:#7a5b8c;" id="previewAngleName">ta</span>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+                <span style="font-size:0.7rem; color:#7a5b8c; display:flex; align-items:center;">形状：</span>
+                <button class="shape-btn active" data-shape="circle">圆形</button>
+                <button class="shape-btn" data-shape="square">方形</button>
+                <button class="shape-btn" data-shape="round">方圆角</button>
+            </div>
+
+            <hr class="mod-divider">
+
+            <div style="margin-top:4px;">
+                <div style="font-size:0.75rem; font-weight:500; color:#5a3d6b; margin-bottom:4px;">🌸 我的头像</div>
+                <div class="avatar-upload-row">
+                    <input type="text" id="userAvatarInput" placeholder="图片URL或Emoji" value="🌸">
+                    <button class="btn" id="userAvatarUploadBtn" type="button">📁 上传</button>
+                    <input type="file" id="userAvatarFile" accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/svg+xml,image/*" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
+                    <button class="btn" id="applyUserAvatarBtn">应用</button>
+                    <button class="btn btn-danger" id="removeUserAvatarBtn">移除</button>
+                </div>
+                <div class="mod-hint">💡 支持 URL 或本地上传（JPG / PNG / GIF / WEBP 等）</div>
+                <div class="avatar-slider-row">
+                    <span class="label">大小</span>
+                    <input type="range" id="userSizeSlider" min="40" max="120" value="60">
+                    <span class="value" id="userSizeValue">60px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">左右</span>
+                    <input type="range" id="userLeftSlider" min="-20" max="20" value="0">
+                    <span class="value" id="userLeftValue">0px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">上下</span>
+                    <input type="range" id="userTopSlider" min="-20" max="20" value="0">
+                    <span class="value" id="userTopValue">0px</span>
+                </div>
+            </div>
+            <hr class="mod-divider">
+
+            <div>
+                <div style="font-size:0.75rem; font-weight:500; color:#5a3d6b; margin-bottom:4px;">🌙 梦角的头像</div>
+                <div class="avatar-upload-row">
+                    <input type="text" id="angleAvatarInput" placeholder="图片URL或Emoji" value="🌙">
+                    <button class="btn" id="angleAvatarUploadBtn" type="button">📁 上传</button>
+                    <input type="file" id="angleAvatarFile" accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/svg+xml,image/*" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
+                    <button class="btn" id="applyAngleAvatarBtn">应用</button>
+                    <button class="btn btn-danger" id="removeAngleAvatarBtn">移除</button>
+                </div>
+                <div class="mod-hint">💡 支持 URL 或本地上传（JPG / PNG / GIF / WEBP 等）</div>
+                <div class="avatar-slider-row">
+                    <span class="label">大小</span>
+                    <input type="range" id="angleSizeSlider" min="40" max="120" value="60">
+                    <span class="value" id="angleSizeValue">60px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">左右</span>
+                    <input type="range" id="angleLeftSlider" min="-20" max="20" value="0">
+                    <span class="value" id="angleLeftValue">0px</span>
+                </div>
+                <div class="avatar-slider-row">
+                    <span class="label">上下</span>
+                    <input type="range" id="angleTopSlider" min="-20" max="20" value="0">
+                    <span class="value" id="angleTopValue">0px</span>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:6px; justify-content:flex-end;">
+                <button class="btn" id="restoreDefaultAvatarBtn" style="padding:8px 20px;">恢复默认</button>
+                <button class="btn btn-primary-mod" id="saveAvatarBtn" style="padding:8px 20px;">保存头像设置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 气泡设置弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="bubbleModal">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h2>💭 气泡</h2>
+            <button class="modal-close" id="closeBubbleModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 气泡预览区 -->
+            <div class="bubble-preview-section">
+                <div class="bubble-preview-title">👁 实时预览</div>
+                <div class="bubble-preview-area" id="bubblePreviewArea">
+                    <div class="preview-msg-row user-row">
+                        <span class="preview-avatar">🌸</span>
+                        <div class="preview-bubble preview-user" id="previewUserBubble">梦女示例消息</div>
+                    </div>
+                    <div class="preview-msg-row angle-row">
+                        <span class="preview-avatar">🌙</span>
+                        <div class="preview-bubble preview-angle" id="previewAngleBubble">梦角示例消息</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 基础设置 -->
+            <div class="settings-item">
+                <div class="label">气泡形状</div>
+                <div class="desc">圆角 / 方角 / 尖角</div>
+                <select id="bubbleShapeSelect">
+                    <option value="round" selected>圆角（圆润）</option>
+                    <option value="square">方角（直角）</option>
+                    <option value="sharp">尖角（尖头）</option>
+                </select>
+            </div>
+            <div class="settings-item">
+                <div class="label">我的气泡颜色</div>
+                <div class="desc">梦女消息气泡背景色</div>
+                <div class="color-row" style="margin-top:6px;">
+                    <input type="color" id="bubbleUserColor" value="#e8ddf2">
+                    <button class="btn" id="applyBubbleUserColor">应用</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">ta 的气泡颜色</div>
+                <div class="desc">梦角消息气泡背景色</div>
+                <div class="color-row" style="margin-top:6px;">
+                    <input type="color" id="bubbleAngleColor" value="#f3eef8">
+                    <button class="btn" id="applyBubbleAngleColor">应用</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="label">气泡圆角大小</div>
+                <div class="desc">数值越大越圆润，方角模式下无效</div>
+                <div class="avatar-slider-row" style="margin-top:6px;">
+                    <input type="range" id="bubbleRadiusSlider" min="0" max="40" value="18">
+                    <span class="value" id="bubbleRadiusValue">18px</span>
+                </div>
+            </div>
+
+            <!-- 自定义 CSS 区域 -->
+            <div class="settings-item">
+                <div class="label">🎨 自定义 CSS（高级）</div>
+                <div class="desc">可自行编写 CSS 调节气泡样式，影响所有消息气泡</div>
+                <textarea id="bubbleCustomCSS" class="mod-textarea" placeholder="/* 例： */
+.message { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.message.user { border: 1px solid var(--accent); }" style="font-family:monospace; font-size:0.7rem; min-height:100px;"></textarea>
+                <div class="color-row" style="margin-top:6px;">
+                    <button class="btn btn-primary-mod" id="applyBubbleCSSBtn" style="padding:6px 14px;">应用 CSS</button>
+                    <button class="btn" id="clearBubbleCSSBtn" style="padding:6px 14px;">清空</button>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:6px; justify-content:flex-end;">
+                <button class="btn" id="restoreBubbleBtn" style="padding:8px 20px;">恢复默认</button>
+                <button class="btn btn-primary-mod" id="saveBubbleBtn" style="padding:8px 20px;">保存气泡设置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 背景&字体弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="bgFontModal">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="modal-header">
+            <h2>🔤 背景&字体</h2>
+            <button class="modal-close" id="closeBgFontModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 聊天背景颜色（与主题外观互通） -->
+            <div class="settings-item">
+                <div class="label">聊天背景颜色</div>
+                <div class="desc">与「主题外观」聊天背景颜色互通</div>
+                <div class="color-row" style="margin-top:6px;">
+                    <input type="color" id="bgColorInput" value="#fcfaff">
+                    <button class="btn" id="applyBgColorBtn">应用</button>
+                </div>
+            </div>
+
+            <!-- 背景图片（URL + 上传） -->
+            <div class="settings-item">
+                <div class="label">背景图片</div>
+                <div class="desc">URL 或本地上传（JPG/PNG），留空则用纯色背景</div>
+                <input type="text" id="bgImageInput" placeholder="https://... 图片地址（支持 JPG/PNG）">
+                <div class="avatar-upload-row" style="margin-top:6px;">
+                    <button class="btn" id="bgImageUploadBtn" type="button">📁 上传图片</button>
+                    <input type="file" id="bgImageFile" accept="image/jpeg,image/png,image/jpg" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
+                    <button class="btn" id="applyBgImageBtn">应用 URL</button>
+                    <button class="btn btn-danger" id="clearBgImageBtn">移除图片</button>
+                </div>
+                <div class="mod-hint">💡 支持 URL 或本地上传（JPG / PNG）</div>
+            </div>
+
+            <!-- 字体大小 -->
+            <div class="settings-item">
+                <div class="label">字体大小</div>
+                <div class="desc">消息文字大小</div>
+                <div class="avatar-slider-row" style="margin-top:6px;">
+                    <input type="range" id="fontSizeSlider" min="12" max="22" value="14">
+                    <span class="value" id="fontSizeValue">14px</span>
+                </div>
+            </div>
+
+            <!-- 字体族（预置 + 自定义上传） -->
+            <div class="settings-item">
+                <div class="label">字体族</div>
+                <div class="desc">选择预置字体，或上传 .ttf/.otf/.woff 字体文件</div>
+                <select id="fontFamilySelect" style="margin-bottom:6px;">
+                    <option value="'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif" selected>默认（系统）</option>
+                    <option value="'PingFang SC', sans-serif">苹方</option>
+                    <option value="Georgia, serif">衬线 Georgia</option>
+                    <option value="'Courier New', monospace">等宽 Courier</option>
+                    <option value="'Microsoft YaHei', sans-serif">微软雅黑</option>
+                </select>
+                <div class="avatar-upload-row" style="margin-top:6px;">
+                    <button class="btn" id="fontUploadBtn" type="button">📁 上传字体</button>
+                    <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" style="position:absolute;width:0;height:0;opacity:0;overflow:hidden;pointer-events:none;">
+                    <span class="value" id="customFontName" style="font-size:0.7rem; color:#7a5b8c; flex:1;">未上传字体</span>
+                    <button class="btn btn-danger" id="removeCustomFontBtn" style="padding:6px 10px; font-size:0.7rem;">移除</button>
+                </div>
+                <div style="margin-top:8px;">
+                    <div class="label" style="font-size:0.75rem; margin-bottom:4px;">📱 加载手机系统字体</div>
+                    <div class="desc" style="margin-bottom:6px;">输入手机系统字体名称（如 苹方、宋体、Heiti SC、San Francisco 等）</div>
+                    <div class="avatar-upload-row">
+                        <input type="text" id="systemFontInput" placeholder="例：苹方" style="flex:1; padding:6px 12px; border-radius:16px; border:1px solid rgba(200,170,220,0.15); font-size:0.8rem; outline:none;">
+                        <button class="btn" id="applySystemFontBtn" style="padding:6px 10px; font-size:0.7rem;">应用</button>
+                    </div>
+                </div>
+                <div class="mod-hint">💡 支持上传 .ttf/.otf/.woff 字体文件，或输入手机系统字体名加载</div>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-top:6px; justify-content:flex-end;">
+                <button class="btn" id="restoreBgFontBtn" style="padding:8px 20px;">恢复默认</button>
+                <button class="btn btn-primary-mod" id="saveBgFontBtn" style="padding:8px 20px;">保存背景&字体</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 主题外观弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="themeModal">
+    <div class="modal-content" style="max-width:500px;">
+        <div class="modal-header">
+            <h2>🎨 主题配色</h2>
+            <button class="modal-close" id="closeThemeModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 自定义编辑器 -->
+            <div class="theme-section">
+                <div class="theme-section-title">🎚️ 自定义编辑器</div>
+                <div class="theme-custom-grid">
+                    <div class="color-edit-row">
+                        <span class="color-label">强调色</span>
+                        <input type="color" id="themeAccentInput" value="#c6a8de" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">强调色2</span>
+                        <input type="color" id="themeAccent2Input" value="#dcc3ed" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">气泡（我）</span>
+                        <input type="color" id="themeBubbleUserInput" value="#e8ddf2" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">气泡（ta）</span>
+                        <input type="color" id="themeBubbleAngleInput" value="#f3eef8" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">聊天背景</span>
+                        <input type="color" id="themeBgChatInput" value="#fcfaff" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">页面背景</span>
+                        <input type="color" id="themeBgPageInput" value="#e8e0ee" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">弹窗背景</span>
+                        <input type="color" id="themeModalBgInput" value="#ffffff" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">遮罩色</span>
+                        <input type="color" id="themeOverlayColorInput" value="#000000" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">主文字</span>
+                        <input type="color" id="themeTextPrimaryInput" value="#2d1a39" class="color-input">
+                    </div>
+                    <div class="color-edit-row">
+                        <span class="color-label">次文字</span>
+                        <input type="color" id="themeTextSecondaryInput" value="#5a3d6b" class="color-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 透明度调节 -->
+            <div class="theme-section">
+                <div class="theme-section-title">🌫️ 透明度 & 模糊度</div>
+                <div class="theme-opacity-grid">
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">弹窗透明度</span>
+                        <input type="range" id="themeModalOpacitySlider" min="0" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeModalOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">遮罩透明度</span>
+                        <input type="range" id="themeOverlayOpacitySlider" min="0" max="80" value="30" class="opacity-slider">
+                        <span class="opacity-val" id="themeOverlayOpacityVal">30%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">弹窗模糊</span>
+                        <input type="range" id="themeModalBlurSlider" min="0" max="20" step="1" value="4" class="opacity-slider">
+                        <span class="opacity-val" id="themeModalBlurVal">4px</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">页面背景</span>
+                        <input type="range" id="themePageOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themePageOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">聊天背景</span>
+                        <input type="range" id="themeChatOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeChatOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">输入区域</span>
+                        <input type="range" id="themeInputOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeInputOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">气泡（我）</span>
+                        <input type="range" id="themeBubbleUserOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeBubbleUserOpacityVal">100%</span>
+                    </div>
+                    <div class="theme-opacity-row">
+                        <span class="opacity-label">气泡（ta）</span>
+                        <input type="range" id="themeBubbleAngleOpacitySlider" min="20" max="100" value="100" class="opacity-slider">
+                        <span class="opacity-val" id="themeBubbleAngleOpacityVal">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷换肤 -->
+            <div class="theme-section">
+                <div class="theme-section-title">📌 快捷换肤</div>
+                <div class="theme-quick-swatches" id="themeQuickSwatches">
+                    <div class="quick-swatch active" data-quick="zisakura" style="background:linear-gradient(135deg,#ece3f2 0%,#c6a8de 100%);" title="🌙 月落紫樱"></div>
+                    <div class="quick-swatch" data-quick="seasalt" style="background:linear-gradient(135deg,#e3eef0 0%,#6fb8c4 100%);" title="🌊 夏日海盐"></div>
+                    <div class="quick-swatch" data-quick="caramel" style="background:linear-gradient(135deg,#efe3d3 0%,#c49468 100%);" title="☕ 焦糖摩卡"></div>
+                    <div class="quick-swatch" data-quick="mistforest" style="background:linear-gradient(135deg,#dfe8e3 0%,#7aa694 100%);" title="🌲 森林薄雾"></div>
+                    <div class="quick-swatch" data-quick="sakura" style="background:linear-gradient(135deg,#f2e3ea 0%,#e29bb0 100%);" title="🌸 樱花乳酪"></div>
+                    <div class="quick-swatch" data-quick="amber" style="background:linear-gradient(135deg,#efe2d1 0%,#d4a162 100%);" title="✦ 星夜琥珀"></div>
+                    <div class="quick-swatch custom" data-quick="custom" title="自定义">
+                        <span class="custom-slash">╲</span><span class="custom-slash-slash">╱</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 恢复默认 -->
+            <div class="theme-section" style="display:flex; justify-content:center;">
+                <button class="btn" id="restoreThemeBtn" style="padding:8px 24px; width:100%;">🔄 恢复默认主题（梦紫）</button>
+            </div>
+
+            <!-- 主题方案 -->
+            <div class="theme-section">
+                <div class="theme-section-row">
+                    <div class="theme-section-title">📁 主题方案</div>
+                    <button class="btn btn-primary-mod" id="themeSavePresetBtn" style="padding:6px 14px; font-size:0.72rem;">➕ 保存当前</button>
+                </div>
+                <div class="theme-section-desc">保存当前所有外观设置，方便快速切换</div>
+                <div class="theme-presets" id="themePresets">
+                    <div class="theme-presets-empty" id="themePresetsEmpty">
+                        <span class="preset-icon">✎</span>
+                        <span>暂无保存的方案，点击"保存当前"试试~</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 字卡弹窗 ===== -->
+<div class="modal-overlay" id="cardModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📜 字卡 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="modalCardCount">0 张</span></h2>
+            <button class="modal-close" id="closeCardModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 梦角状态管理 -->
+            <div class="mod-status-section" style="margin-bottom:12px; padding:10px; background:var(--bg-input); border-radius:10px;">
+                <div style="font-size:0.78rem; font-weight:600; color:var(--accent-deep); margin-bottom:6px;">💫 梦角状态</div>
+                <div id="statusList" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;"></div>
+                <div class="mod-row" style="margin-top:0;">
+                    <input type="text" id="statusInput" placeholder="输入新状态..." maxlength="10" style="flex:1;">
+                    <button class="btn btn-primary-mod" id="statusAddBtn">添加</button>
+                </div>
+                <div class="mod-hint" style="margin-top:4px;">💡 点击状态切换显示，点击 × 删除该状态</div>
+            </div>
+            <!-- 字卡类型切换：通用 / 单人 -->
+            <div id="cardTypeTabs" style="display:flex; gap:6px; margin-bottom:8px;">
+                <button class="btn btn-primary-mod" id="cardTypeShared" style="flex:1; font-size:0.75rem;">🌐 通用字卡</button>
+                <button class="btn" id="cardTypePersonal" style="flex:1; font-size:0.75rem;">👤 单人字卡</button>
+            </div>
+            <!-- 单人字卡区 -->
+            <div id="personalCardsSection" style="display:none; margin-bottom:12px;">
+                <div class="mod-hint" style="margin-bottom:6px;">💡 仅当前角色可用，其他角色看不到</div>
+                <div class="mod-list" id="personalCardList" style="max-height:180px; overflow-y:auto;"></div>
+                <div class="mod-row" style="margin-top:6px;">
+                    <input type="text" id="personalCardInput" placeholder="输入单人字卡..." style="flex:1;">
+                    <button class="btn btn-primary-mod" id="personalCardAddBtn">添加</button>
+                </div>
+            </div>
+            <div id="sharedCardsSection">
+            <div class="mod-group-tabs" id="modGroupTabs">
+                <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="modAllCount">0</span></span>
+            </div>
+            <div class="mod-search-row">
+                <input type="text" id="modSearchInput" placeholder="🔍 搜索字卡...">
+            </div>
+            <div class="mod-list" id="modCardList">
+                <span class="mod-empty">暂无字卡</span>
+            </div>
+            <div>
+                <textarea class="mod-textarea" id="modBatchInput" placeholder="一行一条字卡，回车换行；Ctrl+Enter 批量导入"></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <select id="modBatchGroupSelect"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="modBatchImportBtn">导入</button>
+                    <button class="btn btn-danger" id="modClearBatchBtn">清空</button>
+                </div>
+                <div class="mod-hint">💡 Ctrl+Enter 快速导入 · 同分组自动去重</div>
+            </div>
+            <hr class="mod-divider">
+            <div class="mod-json-section">
+                <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:4px;">📄 JSON 批量导入</div>
+                <textarea class="mod-textarea" id="modJsonInput" rows="3" placeholder='支持 {"groups":{"分组名":["卡1","卡2"]},"groupList":["分组名"]} 或 ["卡1","卡2"]'></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <select id="modJsonGroupSelect"><option value="default">导入到分组</option></select>
+                    <button class="btn btn-primary-mod" id="modJsonImportBtn">导入 JSON</button>
+                </div>
+                <div class="mod-hint">💡 数组格式导入到上方选中的分组；对象格式按分组自动创建并导入</div>
+            </div>
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="modGroupInput" placeholder="新分组名">
+                <button class="btn" id="modAddGroupBtn">创建</button>
+                <button class="btn btn-danger" id="modDeleteGroupBtn">删除</button>
+            </div>
+            <hr class="mod-divider">
+            <div class="mod-actions">
+                <button class="btn" id="modSelectBtn">☑ 选择</button>
+                <button class="btn btn-danger" id="modDeleteSelectedBtn" style="display:none;">删除选中</button>
+                <span style="font-size:0.6rem; color:#7a5b8d; display:flex; align-items:center;" id="modSelectInfo">已选 0</span>
+            </div>
+            <div class="mod-row" style="margin-top:4px; display:none;" id="modMoveRow">
+                <select id="modMoveGroupSelect"><option value="">移动到...</option></select>
+                <button class="btn" id="modMoveBtn">移动</button>
+            </div>
+            <div class="mod-actions" style="margin-top:4px;">
+                <button class="btn btn-danger" id="modClearAllBtn">清空全部</button>
+                <button class="btn" id="modResetDefaultBtn">恢复默认</button>
+            </div>
+            </div><!-- /sharedCardsSection -->
+        </div>
+    </div>
+</div>
+
+<!-- ===== 表情素材弹窗：颜文字 tab + emoji 图片 tab ===== -->
+<div class="modal-overlay" id="emojiModal">
+    <div class="modal-content" style="max-width:560px;">
+        <div class="modal-header">
+            <h2>😊 表情素材 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="emojiCount">0 个</span></h2>
+            <button class="modal-close" id="closeEmojiModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 大 tabs：颜文字 / Emoji符号 / 自定义图片表情包（三分类） -->
+            <div class="lib-tabs" style="margin-bottom:12px;">
+                <button class="tab-btn active" data-sticker-tab="kaomoji">⌨ 颜文字</button>
+                <button class="tab-btn" data-sticker-tab="emoji-symbol">😀 Emoji符号</button>
+                <button class="tab-btn" data-sticker-tab="emoji-img">🖼 表情包（图片）</button>
+            </div>
+
+            <!-- ========= 颜文字 ========= -->
+            <div id="kaomojiSection">
+                <div class="mod-group-tabs" id="kaoGroupTabs">
+                    <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="kaoAllCount">0</span></span>
+                </div>
+                <div class="mod-search-row">
+                    <input type="text" id="kaoSearchInput" placeholder="🔍 搜索颜文字...">
+                </div>
+                <!-- 颜文字列表：白底卡片，等宽字体，保留原样展示 -->
+                <div class="mod-list kao-list" id="kaoList" style="display:flex;flex-direction:column;gap:8px;">
+                    <span class="mod-empty">暂无颜文字</span>
+                </div>
+                <!-- 批量导入：颜文字可以大型多行，使用空行+特殊分隔或者「每行按空行分隔」更严格——采用独立输入框 + 每条用分隔符（3个以上的"-"）+ 保留所有\n -->
+                <div>
+                    <textarea class="mod-textarea" id="kaoBatchInput" rows="5" placeholder="多条颜文字之间用单独一行 &#39;---&#39;（连续三个横线）隔开。Ctrl+Enter 一键导入。例如：&#10;我是小恐龙&#10;　⣿⣿⣿⣿⣿&#10;---&#10;我是小猫　(=^･ｪ･^=)"></textarea>
+                    <div class="mod-row" style="margin-top:4px;">
+                        <select id="kaoBatchGroupSelect"><option value="default">默认</option></select>
+                        <button class="btn btn-primary-mod" id="kaoBatchImportBtn">批量导入</button>
+                        <button class="btn btn-danger" id="kaoClearBatchBtn">清空</button>
+                    </div>
+                    <div class="mod-hint">💡 多条之间用单独一行的「---」分隔；大型颜文字的空格和换行全部原样保留</div>
+                </div>
+                <div class="mod-row" style="margin-top:4px;">
+                    <textarea class="mod-textarea" id="kaoInput" rows="3" placeholder="输入/粘贴一条颜文字（原样保留）" style="flex:2;font-family:Consolas,Monaco,monospace;white-space:pre;"></textarea>
+                    <select id="kaoGroupSelect" style="flex:1;min-width:80px;"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="addKaoBtn">添加</button>
+                </div>
+                <!-- 分组管理 -->
+                <div class="mod-row" style="margin-top:4px;">
+                    <input type="text" id="kaoGroupInput" placeholder="新分组名">
+                    <button class="btn" id="kaoAddGroupBtn">创建</button>
+                    <button class="btn btn-danger" id="kaoDeleteGroupBtn">删除</button>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-actions">
+                    <button class="btn" id="kaoSelectBtn">☑ 选择</button>
+                    <button class="btn btn-danger" id="kaoDeleteSelectedBtn" style="display:none;">删除选中</button>
+                    <span style="font-size:0.6rem; color:#7a5b8d;" id="kaoSelectInfo">已选 0</span>
+                </div>
+                <div class="mod-row" style="margin-top:4px; display:none;" id="kaoMoveRow">
+                    <select id="kaoMoveGroupSelect"><option value="">移动到...</option></select>
+                    <button class="btn" id="kaoMoveBtn">移动</button>
+                </div>
+                <div class="mod-actions" style="margin-top:4px;">
+                    <button class="btn btn-danger" id="clearKaoBtn">清空全部</button>
+                    <button class="btn" id="resetKaoBtn">恢复默认</button>
+                </div>
+            </div>
+
+            <!-- ========= Emoji 符号（Unicode 字符表情 😣 😊 😴 这类，三分类第二板块） ========= -->
+            <div id="emojiSymbolSection" style="display:none;">
+                <div class="mod-group-tabs" id="emSymGroupTabs">
+                    <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emSymAllCount">0</span></span>
+                </div>
+                <div class="mod-search-row">
+                    <input type="text" id="emSymSearchInput" placeholder="🔍 搜索 Emoji 符号...">
+                </div>
+                <!-- 符号列表：大网格，点击直接插入到聊天输入框 -->
+                <div class="mod-list" id="emSymList" style="display:grid;grid-template-columns:repeat(8,1fr);gap:6px;">
+                    <span class="mod-empty" style="grid-column:1/-1;">暂无 Emoji 符号</span>
+                </div>
+                <div class="mod-row" style="margin-top:8px;">
+                    <input type="text" id="emSymInput" placeholder="粘贴或输入 Emoji（可多个连写，按单字符拆分）" style="flex:2;font-size:1.2rem;">
+                    <select id="emSymGroupSelect" style="flex:1;min-width:80px;"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="addEmSymBtn">添加</button>
+                </div>
+                <div class="mod-row" style="margin-top:4px;">
+                    <input type="text" id="emSymGroupInput" placeholder="新分组名">
+                    <button class="btn" id="emSymAddGroupBtn">创建</button>
+                    <button class="btn btn-danger" id="emSymDeleteGroupBtn">删除</button>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-json-section">
+                    <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:4px;">📄 JSON 批量导入</div>
+                    <textarea class="mod-textarea" id="emSymJsonInput" rows="3" placeholder='支持 {"groups":{"分组名":["😀","😂"]},"groupList":["分组名"]} 或 ["😀","😂"]'></textarea>
+                    <div class="mod-row" style="margin-top:4px;">
+                        <select id="emSymJsonGroupSelect"><option value="default">导入到分组</option></select>
+                        <button class="btn btn-primary-mod" id="emSymJsonImportBtn">导入 JSON</button>
+                    </div>
+                    <div class="mod-hint">💡 数组格式导入到上方选中的分组；对象格式按分组自动创建并导入</div>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-actions">
+                    <button class="btn" id="emSymSelectBtn">☑ 选择</button>
+                    <button class="btn btn-danger" id="emSymDeleteSelectedBtn" style="display:none;">删除选中</button>
+                    <span style="font-size:0.6rem; color:#7a5b8d;" id="emSymSelectInfo">已选 0</span>
+                </div>
+                <div class="mod-row" style="margin-top:4px; display:none;" id="emSymMoveRow">
+                    <select id="emSymMoveGroupSelect"><option value="">移动到...</option></select>
+                    <button class="btn" id="emSymMoveBtn">移动</button>
+                </div>
+                <div class="mod-actions" style="margin-top:4px;">
+                    <button class="btn btn-danger" id="clearEmSymBtn">清空全部</button>
+                    <button class="btn" id="resetEmSymBtn">恢复默认</button>
+                </div>
+            </div>
+
+            <!-- ========= emoji 图片（支持 URL / 本地文件 PNG JPG GIF / 手机相册）========= -->
+            <div id="emojiImgSection" style="display:none;">
+                <div class="mod-group-tabs" id="emImgGroupTabs">
+                    <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="emImgAllCount">0</span></span>
+                </div>
+                <div class="mod-search-row">
+                    <input type="text" id="emImgSearchInput" placeholder="🔍 搜索图片名/备注...">
+                </div>
+                <!-- 图片列表：网格 -->
+                <div class="mod-list em-img-list" id="emImgList" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                    <span class="mod-empty" style="grid-column:1/-1;">暂无 emoji 图片</span>
+                </div>
+
+                <!-- 添加方式 -->
+                <div style="margin-top:12px;">
+                    <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:6px;">添加方式</div>
+                    <!-- 方式1：URL -->
+                    <div class="mod-row" style="margin-top:4px;">
+                        <input type="text" id="emImgUrlInput" placeholder="粘贴图片链接（http(s):// 或 data:image/...）" style="flex:2;">
+                        <button class="btn btn-primary-mod" id="emImgAddUrlBtn">添加URL</button>
+                    </div>
+                    <!-- 方式2：本地上传（多选 / 相册 / 相机） -->
+                    <div class="mod-row" style="margin-top:6px;flex-wrap:wrap;">
+                        <button class="btn" id="emImgPickFileBtn">📁 选择图片（多选）</button>
+                        <button class="btn" id="emImgPickAlbumBtn">📷 手机相册/拍照</button>
+                        <select id="emImgTargetGroup" style="flex:1;min-width:90px;"><option value="default">默认分组</option></select>
+                        <input type="file" id="emImgFileInput" multiple accept="image/*" style="display:none;">
+                        <input type="file" id="emImgAlbumInput" accept="image/*" capture="environment" style="display:none;">
+                        <span style="font-size:0.65rem;color:var(--text-muted);flex:1 1 100%;margin-top:4px;">支持 PNG / JPG / JPEG / GIF / WebP 等常见图片格式</span>
+                    </div>
+
+                    <!-- 批量 URL 导入 -->
+                    <div style="margin-top:8px;">
+                        <textarea class="mod-textarea" id="emImgBatchUrlInput" rows="3" placeholder="每行一条图片 URL（http:// 或 https:// 或 data:image/...）"></textarea>
+                        <div class="mod-row" style="margin-top:4px;">
+                            <select id="emImgBatchGroupSelect"><option value="default">默认</option></select>
+                            <button class="btn btn-primary-mod" id="emImgBatchUrlBtn">批量导入URL</button>
+                            <button class="btn btn-danger" id="emImgClearBatchUrlBtn">清空</button>
+                        </div>
+                        <div class="mod-hint">💡 每行一条；HTTP 链接将原样使用</div>
+                    </div>
+                </div>
+
+                <!-- 分组管理 -->
+                <div class="mod-row" style="margin-top:8px;">
+                    <input type="text" id="emImgGroupInput" placeholder="新分组名">
+                    <button class="btn" id="emImgAddGroupBtn">创建</button>
+                    <button class="btn btn-danger" id="emImgDeleteGroupBtn">删除</button>
+                </div>
+                <hr class="mod-divider">
+                <div class="mod-actions">
+                    <button class="btn" id="emImgSelectBtn">☑ 选择</button>
+                    <button class="btn btn-danger" id="emImgDeleteSelectedBtn" style="display:none;">删除选中</button>
+                    <span style="font-size:0.6rem; color:#7a5b8d;" id="emImgSelectInfo">已选 0</span>
+                </div>
+                <div class="mod-row" style="margin-top:4px; display:none;" id="emImgMoveRow">
+                    <select id="emImgMoveGroupSelect"><option value="">移动到...</option></select>
+                    <button class="btn" id="emImgMoveBtn">移动</button>
+                </div>
+                <div class="mod-actions" style="margin-top:4px;">
+                    <button class="btn btn-danger" id="clearEmImgBtn">清空全部</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 拍一拍弹窗（新增分组管理 + 批量导入） ===== -->
+<div class="modal-overlay" id="patModal">
+    <div class="modal-content" style="max-width:420px;">
+        <div class="modal-header">
+            <h2>👋 拍一拍 <span style="font-weight:400; font-size:0.65rem; opacity:0.4; margin-left:6px;" id="patCount">0 个</span></h2>
+            <button class="modal-close" id="closePatModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="mod-group-tabs" id="patGroupTabs">
+                <span class="mod-group-tab active" data-group="all">全部 <span class="count" id="patAllCount">0</span></span>
+            </div>
+            <div class="mod-search-row">
+                <input type="text" id="patSearchInput" placeholder="🔍 搜索拍一拍...">
+            </div>
+            <div class="mod-list" id="patList">
+                <span class="mod-empty">暂无拍一拍</span>
+            </div>
+            <!-- 批量导入：换行分隔，一行一条 -->
+            <div>
+                <textarea class="mod-textarea" id="patBatchInput" placeholder="一行一条拍一拍，回车换行；Ctrl+Enter 批量导入"></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <select id="patBatchGroupSelect"><option value="default">默认</option></select>
+                    <button class="btn btn-primary-mod" id="patBatchImportBtn">导入</button>
+                    <button class="btn btn-danger" id="patClearBatchBtn">清空</button>
+                </div>
+                <div class="mod-hint">💡 Ctrl+Enter 快速导入 · 同分组自动去重</div>
+            </div>
+            <hr class="mod-divider">
+            <div class="mod-json-section">
+                <div style="font-size:0.72rem;color:var(--accent-deep);font-weight:600;margin-bottom:4px;">📄 JSON 批量导入</div>
+                <textarea class="mod-textarea" id="patJsonInput" rows="3" placeholder='支持 {"groups":{"分组名":["拍了拍肩膀","摸摸头"]},"groupList":["分组名"]} 或 ["拍了拍肩膀","摸摸头"]'></textarea>
+                <div class="mod-row" style="margin-top:4px;">
+                    <select id="patJsonGroupSelect"><option value="default">导入到分组</option></select>
+                    <button class="btn btn-primary-mod" id="patJsonImportBtn">导入 JSON</button>
+                </div>
+                <div class="mod-hint">💡 数组格式导入到上方选中的分组；对象格式按分组自动创建并导入</div>
+            </div>
+            <!-- 单条添加 -->
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="patInput" placeholder="输入新拍一拍" style="flex:2;">
+                <select id="patGroupSelect" style="flex:1; min-width:80px;"><option value="default">默认</option></select>
+                <button class="btn btn-primary-mod" id="addPatBtn">添加</button>
+            </div>
+            <div class="mod-hint">💡 支持自定义拍一拍文案 · 同分组自动去重</div>
+            <!-- 分组管理 -->
+            <div class="mod-row" style="margin-top:4px;">
+                <input type="text" id="patGroupInput" placeholder="新分组名">
+                <button class="btn" id="patAddGroupBtn">创建</button>
+                <button class="btn btn-danger" id="patDeleteGroupBtn">删除</button>
+            </div>
+            <hr class="mod-divider">
+            <div class="mod-actions">
+                <button class="btn" id="patSelectBtn">☑ 选择</button>
+                <button class="btn btn-danger" id="patDeleteSelectedBtn" style="display:none;">删除选中</button>
+                <span style="font-size:0.6rem; color:#7a5b8d; display:flex; align-items:center;" id="patSelectInfo">已选 0</span>
+            </div>
+            <div class="mod-row" style="margin-top:4px; display:none;" id="patMoveRow">
+                <select id="patMoveGroupSelect"><option value="">移动到...</option></select>
+                <button class="btn" id="patMoveBtn">移动</button>
+            </div>
+            <div class="mod-actions" style="margin-top:4px;">
+                <button class="btn btn-danger" id="clearPatBtn">清空全部</button>
+                <button class="btn" id="resetPatBtn">恢复默认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 模拟通话弹窗 ===== -->
+<div class="modal-overlay" id="callModal">
+    <div class="modal-content" style="max-width:380px;">
+        <div class="modal-header">
+            <h2>📹 模拟通话</h2>
+            <button class="modal-close" id="closeCallModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="call-avatars">
+                <div class="call-avatar-box">
+                    <div class="avatar" id="callUserAvatar">🌸</div>
+                    <span class="name" id="callUserName">我</span>
+                    <span class="dot" id="callDreamerDot"></span>
+                </div>
+                <div style="color:#b697cc; font-size:1.4rem;">⟷</div>
+                <div class="call-avatar-box">
+                    <div class="avatar" id="callAngleAvatar">🌙</div>
+                    <span class="name" id="callAngleName">ta</span>
+                    <span class="dot" id="callAngleDot"></span>
+                </div>
+            </div>
+            <div class="call-status-text" id="callStatusText">💤 待机中</div>
+            <div class="call-controls">
+                <button class="btn-call" id="callBtn">📞 呼叫</button>
+                <button class="btn-hangup" id="hangupBtn" style="display:none;">📴 挂断</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 隐藏的导出下载锚点 -->
+<a id="dataExportAnchor" style="display:none;"></a>
+
+<!-- ===== 猜拳奖惩 ===== -->
+<div class="modal-overlay sub-modal" id="rpsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>✊ 猜拳奖惩</h2>
+            <button class="modal-close" id="closeRpsModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:4px;">
+                <div class="game-tabs" id="rpsModeTabs">
+                    <div class="tab active" data-mode="winner_rules">🏆 赢方制定奖惩</div>
+                    <div class="tab" data-mode="angle_rules">🌙 梦角统一制定</div>
+                </div>
+                <div class="role-switch" id="rpsRoleSwitch">
+                    <div class="chip active" data-role="dreamer">🎀 梦女</div>
+                    <div class="chip" data-role="angle">🌙 梦角</div>
+                </div>
+            </div>
+            <div class="stats-bar" id="rpsStatsBar"></div>
+            <div class="rps-board">
+                <div class="rps-side"><div class="who">🎀 梦女出拳</div><div class="rps-hand" id="rpsUserHand"></div></div>
+                <div class="rps-side"><div class="who">🌙 梦角出拳</div><div class="rps-hand pending" id="rpsAngleHand"></div></div>
+            </div>
+            <div class="rps-actions">
+                <button class="btn" data-hand="rock">✊</button>
+                <button class="btn" data-hand="scissors">✌️</button>
+                <button class="btn" data-hand="paper">✋</button>
+            </div>
+            <div class="rps-result" id="rpsResult" style="display:none;"></div>
+            <div class="rps-rule-input" id="rpsRuleInput" style="display:none;"></div>
+            <hr class="mod-divider">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary);">📜 历史记录</div>
+                <div class="mod-actions" style="margin-top:0;">
+                    <button class="btn" id="rpsExportBtn">导出</button>
+                    <button class="btn btn-danger" id="rpsClearBtn">清空</button>
+                </div>
+            </div>
+            <div class="history-list" id="rpsHistoryList"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 涂鸦板 ===== -->
+<div class="modal-overlay sub-modal" id="doodleModal">
+    <div class="modal-content" style="max-width:600px;">
+        <div class="modal-header">
+            <h2>🎨 涂鸦板</h2>
+            <button class="modal-close" id="closeDoodleModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
+                <div class="role-switch" id="doodleRoleSwitch">
+                    <div class="chip active" data-role="dreamer">🎀 梦女画</div>
+                    <div class="chip" data-role="angle">🌙 梦角画</div>
+                </div>
+                <div style="font-size:0.65rem; color:var(--text_muted);">💡 保存后进入画廊可回看</div>
+            </div>
+            <div class="doodle-wrap">
+                <div class="doodle-toolbar" id="doodleToolbar"></div>
+                <div class="doodle-canvas-box">
+                    <canvas id="doodleCanvas" width="800" height="500"></canvas>
+                </div>
+            </div>
+            <hr class="mod-divider">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:4px 0;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary);">🖼️ 画廊</div>
+                <div style="font-size:0.6rem; color:var(--text_muted);">最多 50 张</div>
+            </div>
+            <div class="doodle-gallery" id="doodleGallery"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 你画我猜 ===== -->
+<div class="modal-overlay sub-modal" id="drawGuessModal">
+    <div class="modal-content" style="max-width:700px; max-height:92vh;">
+        <div class="modal-header">
+            <h2>🖌️ 你画我猜</h2>
+            <button class="modal-close" id="closeDrawGuessModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                <div class="game-tabs" id="dgModeTabs">
+                    <div class="tab active" data-mode="topic">🏷 话题限定</div>
+                    <div class="tab" data-mode="free">✏️ 自由画</div>
+                </div>
+                <div class="role-switch" id="dgRoleSwitch">
+                    <div class="chip active" data-role="dreamer">🎀 梦女出题</div>
+                    <div class="chip" data-role="angle">🌙 梦角出题</div>
+                </div>
+            </div>
+            <div class="stats-bar" id="dgStatsBar"></div>
+            <div class="dg-word-row" id="dgWordRow"></div>
+            <div id="dgTopicsWrap" style="display:none;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary); margin-bottom:4px;">话题分类</div>
+                <div class="dg-topics" id="dgTopicTags"></div>
+            </div>
+            <div class="doodle-canvas-box" style="margin:8px 0;">
+                <canvas id="dgCanvas" width="800" height="460"></canvas>
+            </div>
+            <div class="dg-guess-row">
+                <input type="text" id="dgGuessInput" placeholder="输入你的猜测..." autocomplete="off">
+                <button class="btn-primary-mod" id="dgGuessBtn">猜！</button>
+                <button class="btn" id="dgStartBtn">🎬 开启新一轮</button>
+            </div>
+            <div id="dgTopicMgrWrap"></div>
+            <hr class="mod-divider">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:0.7rem; font-weight:500; color:var(--text_secondary);">📜 历史</div>
+                <button class="mini-btn" id="dgTopicMgrBtn">🧰 话题管理</button>
+            </div>
+            <div class="history-list" id="dgHistoryList"></div>
+        </div>
+    </div>
+</div>
+<!-- ===== 通用确认弹窗 ===== -->
+<div class="modal-overlay sub-modal" id="confirmModal">
+    <div class="modal-content" style="max-width:360px;">
+        <div class="modal-header">
+            <h2 id="confirmTitle">确认</h2>
+            <button class="modal-close" data-confirm-close>✕</button>
+        </div>
+        <div class="modal-body">
+            <div id="confirmMsg" style="font-size:0.82rem; color:var(--text_secondary); line-height:1.6; padding:4px 0 10px;"></div>
+            <div style="display:flex; gap:6px; justify-content:flex-end;">
+                <button class="btn btn-danger" id="confirmNo">拒绝</button>
+                <button class="btn-primary-mod" id="confirmYes">同意</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 虚拟红包（发送） ===== -->
+<div class="modal-overlay sub-modal" id="redPacketModal">
+    <div class="modal-content" style="max-width:380px;">
+        <div class="modal-header">
+            <h2>🧧 发红包</h2>
+            <button class="modal-close" id="closeRPModal">✕</button>
+        </div>
+        <div class="modal-body">
+            <!-- 钱包余额（可编辑） -->
+            <div class="rp-wallets-row">
+                <div class="rp-wallet-row" id="rpWalletDreamer">
+                    <button class="edit-btn" data-edit="dreamer">自定义</button>
+                    <div class="who">🎀 梦女</div>
+                    <div class="amt" id="rpDreamerAmt">¥0.00</div>
+                </div>
+                <div class="rp-wallet-row" id="rpWalletAngle" style="background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 100%);">
+                    <button class="edit-btn" data-edit="angle">自定义</button>
+                    <div class="who">🌙 梦角</div>
+                    <div class="amt" id="rpAngleAmt">¥0.00</div>
+                </div>
+            </div>
+
+            <div class="rp-field">
+                <label>红包金额</label>
+                <div class="rp-amount-box">
+                    <span class="yen">¥</span>
+                    <input type="number" id="rpAmountInput" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal">
+                </div>
+                <div class="rp-hint" id="rpBalanceHint">梦女余额充足，尽情发吧～</div>
+            </div>
+
+            <div class="rp-field">
+                <label>祝福语（可选）</label>
+                <input type="text" class="rp-greeting-input" id="rpGreetingInput" placeholder="恭喜发财，大吉大利" maxlength="30">
+            </div>
+
+            <button class="rp-send-btn" id="rpSendBtn">🧧 塞钱进红包</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 拆红包弹层 ===== -->
+<div class="rp-open-mask" id="rpOpenMask">
+    <div class="rp-open-card">
+        <div class="rp-open-from" id="rpOpenFrom">来自 🎀 梦女 的红包</div>
+        <div class="rp-open-greeting" id="rpOpenGreeting">恭喜发财，大吉大利</div>
+        <div id="rpOpenCircle" class="rp-open-circle">拆</div>
+        <div id="rpOpenResult" style="display:none;">
+            <div class="rp-open-amount" id="rpOpenAmount">0.00</div>
+            <div class="rp-open-unit">元</div>
+            <div style="font-size:0.7rem; opacity:0.75; margin-top:8px;" id="rpOpenTip">已存入梦角余额</div>
+            <button class="rp-open-close" id="rpOpenClose">收下</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== 角色切换 / 管理弹窗 ===== -->
+<div class="modal-overlay" id="roleSwitcherModal">
+    <div class="modal-content" style="max-width:440px;">
+        <div class="modal-header">
+            <h2>👥 角色与群聊</h2>
+            <button class="modal-close" id="closeRoleSwitcher">✕</button>
+        </div>
+        <div class="modal-body" style="display:flex;flex-direction:column;gap:12px;">
+            <div id="roleList" style="display:flex;flex-direction:column;gap:8px;"></div>
+            <div id="newRoleForm" style="display:none;padding:10px;border-radius:12px;background:var(--bg-card);border:1px solid var(--border-faint);">
+                <div style="font-size:0.8rem;font-weight:600;margin-bottom:8px;" id="newRoleTitle">➕ 新建角色</div>
+                <div style="display:flex;gap:8px;margin-bottom:8px;">
+                    <input type="text" id="newRoleName" placeholder="名称" style="flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--border-faint);font-size:0.8rem;">
+                    <input type="text" id="newRoleAvatar" placeholder="头像emoji" style="width:70px;padding:6px 10px;border-radius:8px;border:1px solid var(--border-faint);font-size:0.8rem;text-align:center;">
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-primary-mod" id="confirmNewRole" style="flex:1;font-size:0.78rem;">创建</button>
+                    <button class="btn" id="cancelNewRole" style="flex:1;font-size:0.78rem;">取消</button>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button class="btn-primary-mod" id="addRoleBtn" style="flex:1;font-size:0.78rem;">➕ 新建角色</button>
+                <button class="btn" id="addGroupBtn" style="flex:1;font-size:0.78rem;background:linear-gradient(135deg,#a8d8ea,#b5ead7);">👥 新建群聊</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="lingyu.js"></script>
+<!-- ===== 消息提示音/通话提示音占位：实际声音由下方 Web Audio playSfx 合成（无需外部文件） ===== -->
+<audio id="sndMsg" preload="auto"></audio>
+<audio id="sndCall" preload="auto"></audio>
+</body>
+</html>
